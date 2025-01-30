@@ -6,9 +6,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.devspace.myapplication.detail.presentation.RecipeDetailViewModel
+import com.devspace.myapplication.detail.presentation.ui.RecipeDetailScreen
+import com.devspace.myapplication.list.presentation.ListRecipesViewModel
+import com.devspace.myapplication.list.presentation.ui.MainScreen
+import com.devspace.myapplication.search.presentation.SearchRecipeViewModel
+import com.devspace.myapplication.search.presentation.ui.SearchRecipeScreen
+import com.devspace.myapplication.welcome.presentation.ui.WelcomeScreen
 
 @Composable
-fun EasyRecipesApp() {
+fun EasyRecipesApp(
+    listRecipesViewModel: ListRecipesViewModel,
+    recipeDetailViewModel: RecipeDetailViewModel,
+    searchRecipeViewModel: SearchRecipeViewModel
+) {
     val navController = rememberNavController();
     NavHost(navController = navController, startDestination = "welcome") {
         composable(route = "welcome") {
@@ -16,7 +27,7 @@ fun EasyRecipesApp() {
         }
 
         composable(route = "main_screen") {
-            MainScreen(navController);
+            MainScreen(navController, listRecipesViewModel);
         }
 
         composable(
@@ -26,7 +37,7 @@ fun EasyRecipesApp() {
             })
         ) { navBackStackEntry ->
             val recipeId = requireNotNull(navBackStackEntry.arguments?.getInt("recipeId"));
-            RecipeDetailScreen(recipeId, navController);
+            RecipeDetailScreen(recipeId, navController, recipeDetailViewModel);
         }
 
         composable(
@@ -36,7 +47,7 @@ fun EasyRecipesApp() {
             })
         ){ navBackStackEntry ->
             val query = requireNotNull(navBackStackEntry.arguments?.getString("query"));
-            SearchRecipeScreen(query, navController);
+            SearchRecipeScreen(query, navController, searchRecipeViewModel);
         }
     }
 }

@@ -1,6 +1,5 @@
-package com.devspace.myapplication
+package com.devspace.myapplication.search.presentation.ui
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,10 +16,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -31,41 +28,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.devspace.myapplication.search.model.SearchRecipeDto
+import com.devspace.myapplication.search.presentation.SearchRecipeViewModel
 
 @Composable
 fun SearchRecipeScreen(
     query: String,
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: SearchRecipeViewModel
 ) {
-    var searchedRecipes by remember {
-        mutableStateOf<List<SearchRecipeDto>>(emptyList());
-    }
-
-    val apiService = RetrofitClient.retrofitInstance.create(ApiService::class.java);
-
-    apiService.getSearchRecipes(query).enqueue(object : Callback<SearchRecipeResponse> {
-        override fun onResponse(
-            call: Call<SearchRecipeResponse>,
-            response: Response<SearchRecipeResponse>
-        ) {
-            if(response.isSuccessful) {
-                val recipes = response.body()?.results;
-                if(recipes != null) {
-                    searchedRecipes = recipes
-                }
-            }
-            else {
-                Log.d("SearchRecipeScreen", "Request error :: ${response.errorBody().toString()}")
-            }
-        }
-
-        override fun onFailure(call: Call<SearchRecipeResponse>, t: Throwable) {
-            Log.d("SearchRecipeScreen", "Network error :: ${t.message}")
-        }
-    })
+    val searchedRecipes by viewModel.uiRecipes.collectAsState();
+    viewModel.fetchSearchRecipes(query);
 
     Column(
         modifier = Modifier

@@ -1,6 +1,5 @@
-package com.devspace.myapplication
+package com.devspace.myapplication.list.presentation.ui
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,7 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,44 +25,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.devspace.myapplication.common.model.RecipeDto
 import com.devspace.myapplication.designsystem.HtmlText
 import com.devspace.myapplication.designsystem.SearchBar
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.devspace.myapplication.list.presentation.ListRecipesViewModel
 
 @Composable
 fun MainScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: ListRecipesViewModel
 ) {
-    var randomRecipes by remember {
-        mutableStateOf<List<RecipeDto>>(emptyList())
-    }
-
-    val apiService = RetrofitClient.retrofitInstance.create(ApiService::class.java);
-
-    LaunchedEffect(Unit) {
-        val callRandomRecipes = apiService.getRandomRecipes();
-
-        callRandomRecipes.enqueue(object : Callback<RecipeResponse> {
-            override fun onResponse(call: Call<RecipeResponse>, response: Response<RecipeResponse>) {
-                if(response.isSuccessful) {
-                    val recipes = response.body()?.recipes;
-                    if(recipes !== null) {
-                        randomRecipes = recipes;
-                    }
-                }
-                else {
-                    Log.d("MainScreen", "Request error :: ${response.errorBody().toString()}")
-                }
-            }
-
-            override fun onFailure(call: Call<RecipeResponse>, t: Throwable) {
-                Log.d("MainScreen", "Network error :: ${t.message}")
-            }
-
-        })
-    }
+    val randomRecipes by viewModel.uiRecipes.collectAsState();
 
     MainScreenContent(
         recipes = randomRecipes,
